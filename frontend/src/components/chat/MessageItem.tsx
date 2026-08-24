@@ -1,5 +1,5 @@
 import { cn, formatMessageTime } from "@/lib/utils";
-import type { Conversation, Message, Participant } from "@/types/chat";
+import type { Conversation, Message, Participant, Reaction } from "@/types/chat";
 import UserAvatar from "./UserAvatar";
 import { Card } from "../ui/card";
 import { Badge } from "../ui/badge";
