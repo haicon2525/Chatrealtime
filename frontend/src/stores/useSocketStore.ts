@@ -5,6 +5,7 @@ import type { SocketState } from "@/types/store";
 import { useChatStore } from "./useChatStore";
 import { useFriendStore } from "./useFriendStore";
 import { toast } from "sonner";
+import { soundController } from "@/lib/soundUtils";
 
 const baseURL = import.meta.env.VITE_SOCKET_URL;
 
@@ -36,6 +37,12 @@ export const useSocketStore = create<SocketState>((set, get) => ({
     // new message
     socket.on("new-message", ({ message, conversation, unreadCounts }) => {
       useChatStore.getState().addMessage(message);
+
+      const currentUserId = useAuthStore.getState().user?._id;
+      // Phát âm thanh nếu tin nhắn gửi từ người khác
+      if (message.senderId !== currentUserId) {
+        soundController.playMessageSound();
+      }
 
       const lastMessage = {
         _id: conversation.lastMessage._id,
@@ -87,6 +94,7 @@ export const useSocketStore = create<SocketState>((set, get) => ({
 
     // new friend request
     socket.on("new-friend-request", (request) => {
+      soundController.playNotificationSound();
       useFriendStore.getState().addReceivedRequest(request);
       const senderName = request.from?.displayName || request.from?.username || "Ai đó";
       toast.info(`${senderName} đã gửi cho bạn một lời mời kết bạn!`);
@@ -94,6 +102,7 @@ export const useSocketStore = create<SocketState>((set, get) => ({
 
     // friend request accepted
     socket.on("friend-request-accepted", ({ acceptedBy }) => {
+      soundController.playNotificationSound();
       useFriendStore.getState().getFriends();
       const name = acceptedBy?.displayName || acceptedBy?.username || "Ai đó";
       toast.success(`${name} đã chấp nhận lời mời kết bạn của bạn!`);
