@@ -28,7 +28,7 @@ const messageSchema = new mongoose.Schema(
           required: true,
         },
         emoji: {
-          type: string,
+          type: String,
           required: true,
         },
       },

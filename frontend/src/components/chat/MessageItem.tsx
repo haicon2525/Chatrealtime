@@ -145,9 +145,7 @@ const MessageItem = ({
                     acc[r.emoji] = { count: 0, reactedByMe: false };
                   }
                   acc[r.emoji].count += 1;
-                  if (
-                    r.userId?.toString() === user?._id?.toString()
-                  ) {
+                  if (r.userId?.toString() === user?._id?.toString()) {
                     acc[r.emoji].reactedByMe = true;
                   }
                   return acc;
