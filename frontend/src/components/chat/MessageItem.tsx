@@ -89,7 +89,7 @@ const MessageItem = ({
             <div
               className={cn(
                 "absolute -top-9 hidden group-hover:flex items-center gap-1 bg-background border shadow-md rounded-full px-2 py-1 z-10 animate-in fade-in zoom-in duration-150",
-                message.isOwn ? "right-0" : "left-0"
+                message.isOwn ? "right-0" : "left-0",
               )}
             >
               {EMOJI_LIST.map((emoji) => (
@@ -109,7 +109,7 @@ const MessageItem = ({
                 "p-3 overflow-hidden",
                 message.isOwn
                   ? "chat-bubble-sent border-0"
-                  : "chat-bubble-received"
+                  : "chat-bubble-received",
               )}
             >
               {message.imgUrl && (
@@ -145,11 +145,13 @@ const MessageItem = ({
                     acc[r.emoji] = { count: 0, reactedByMe: false };
                   }
                   acc[r.emoji].count += 1;
-                  if (r.userId === user?._id) {
+                  if (
+                    r.userId?.toString() === user?._id?.toString()
+                  ) {
                     acc[r.emoji].reactedByMe = true;
                   }
                   return acc;
-                }, {})
+                }, {}),
               ).map(([emoji, { count, reactedByMe }]) => (
                 <button
                   key={emoji}
@@ -158,7 +160,7 @@ const MessageItem = ({
                     "flex items-center gap-1 text-xs px-2 py-0.5 rounded-full border transition-all cursor-pointer",
                     reactedByMe
                       ? "bg-primary/20 border-primary text-primary font-medium shadow-sm"
-                      : "bg-background/80 border-border hover:bg-muted"
+                      : "bg-background/80 border-border hover:bg-muted",
                   )}
                 >
                   <span>{emoji}</span>
