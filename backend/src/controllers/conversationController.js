@@ -239,3 +239,42 @@ export const markAsSeen = async (req, res) => {
     return res.status(500).json({ message: "Lỗi hệ thống" });
   }
 };
+
+export const deleteConversation = async (req, res) => {
+  try {
+    const { conversationId } = req.params;
+    const userId = req.user._id;
+
+    const conversation = await Conversation.findById(conversationId);
+
+    if (!conversation) {
+      return res.status(404).json({ message: "Cuộc trò chuyện không tồn tại" });
+    }
+
+    const isParticipant = conversation.participants.some(
+      (p) => p.userId.toString() === userId.toString()
+    );
+
+    if (!isParticipant) {
+      return res
+        .status(403)
+        .json({ message: "Bạn không có quyền xóa cuộc trò chuyện này" });
+    }
+
+    await Message.deleteMany({ conversationId });
+    await Conversation.findByIdAndDelete(conversationId);
+
+    io.to(conversationId.toString()).emit("delete-conversation", {
+      conversationId: conversationId.toString(),
+    });
+
+    return res.status(200).json({
+      message: "Đã xóa cuộc trò chuyện thành công",
+      conversationId,
+    });
+  } catch (error) {
+    console.error("Lỗi khi xóa cuộc trò chuyện", error);
+    return res.status(500).json({ message: "Lỗi hệ thống" });
+  }
+};
+

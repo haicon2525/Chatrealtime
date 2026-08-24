@@ -2,7 +2,8 @@ import { friendService } from "@/services/friendService";
 import type { FriendState } from "@/types/store";
 import { create } from "zustand";
 
-export const useFriendStore = create<FriendState>((set, get) => ({
+export const useFriendStore = create<FriendState>((set) => ({
+
   friends: [],
   loading: false,
   receivedList: [],
@@ -87,5 +88,14 @@ export const useFriendStore = create<FriendState>((set, get) => ({
     } finally {
       set({ loading: false });
     }
+  },
+  addReceivedRequest: (request) => {
+    set((state) => {
+      // Tránh trùng lặp nếu request đã có trong danh sách
+      if (state.receivedList.some((r) => r._id === request._id)) {
+        return state;
+      }
+      return { receivedList: [request, ...state.receivedList] };
+    });
   },
 }));

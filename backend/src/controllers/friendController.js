@@ -1,6 +1,7 @@
 import Friend from "../models/Friend.js";
 import User from "../models/User.js";
 import FriendRequest from "../models/FriendRequest.js";
+import { io } from "../socket/index.js";
 
 export const sendFriendRequest = async (req, res) => {
   try {
@@ -51,9 +52,15 @@ export const sendFriendRequest = async (req, res) => {
       message,
     });
 
+    const populatedRequest = await FriendRequest.findById(request._id)
+      .populate("from", "_id username displayName avatarUrl")
+      .populate("to", "_id username displayName avatarUrl");
+
+    io.to(to.toString()).emit("new-friend-request", populatedRequest);
+
     return res
       .status(201)
-      .json({ message: "Gửi lời mời kết bạn thành công", request });
+      .json({ message: "Gửi lời mời kết bạn thành công", request: populatedRequest });
   } catch (error) {
     console.error("Lỗi khi gửi yêu cầu kết bạn", error);
     return res.status(500).json({ message: "Lỗi hệ thống" });
@@ -85,8 +92,17 @@ export const acceptFriendRequest = async (req, res) => {
     await FriendRequest.findByIdAndDelete(requestId);
 
     const from = await User.findById(request.from)
-      .select("_id displayName avatarUrl")
+      .select("_id displayName avatarUrl username")
       .lean();
+
+    const currentUser = await User.findById(userId)
+      .select("_id displayName avatarUrl username")
+      .lean();
+
+    // Thông báo realtime cho người gửi lời mời
+    io.to(request.from.toString()).emit("friend-request-accepted", {
+      acceptedBy: currentUser,
+    });
 
     return res.status(200).json({
       message: "Chấp nhận lời mời kết bạn thành công",
@@ -94,6 +110,7 @@ export const acceptFriendRequest = async (req, res) => {
         _id: from?._id,
         displayName: from?.displayName,
         avatarUrl: from?.avatarUrl,
+        username: from?.username,
       },
     });
   } catch (error) {

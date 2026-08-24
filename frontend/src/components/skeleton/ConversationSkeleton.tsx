@@ -4,10 +4,7 @@ const ConversationSkeleton = () => {
   return (
     <>
       {Array.from({ length: 3 }).map((_, index) => (
-        <Card
-          key={index}
-          className="border-none p-3 glass animate-pulse"
-        >
+        <Card key={index} className="border-none p-3 glass animate-pulse">
           <div className="flex items-center gap-3">
             {/* Avatar skeleton */}
             <div className="size-10 rounded-full bg-muted" />

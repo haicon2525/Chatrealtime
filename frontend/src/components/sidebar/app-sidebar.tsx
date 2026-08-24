@@ -24,6 +24,8 @@ import { useAuthStore } from "@/stores/useAuthStore";
 import ConversationSkeleton from "../skeleton/ConversationSkeleton";
 import { useChatStore } from "@/stores/useChatStore";
 
+import NotificationBell from "../friendRequest/NotificationBell";
+
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { isDark, toggleTheme } = useThemeStore();
   const { user } = useAuthStore();
@@ -40,13 +42,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarMenuItem>
             <SidebarMenuButton
               size="lg"
-              asChild
-              className="bg-gradient-primary"
+              className="bg-gradient-primary hover:bg-gradient-primary"
             >
-              <a href="#">
-                <div className="flex w-full items-center px-2 justify-between">
-                  <h1 className="text-xl font-bold text-white">Moji</h1>
-                  <div className="flex items-center gap-2">
+              <div className="flex w-full items-center px-2 justify-between">
+                <h1 className="text-xl font-bold text-white">Moji</h1>
+                <div className="flex items-center gap-1">
+                  <NotificationBell />
+                  <div className="flex items-center gap-1 ml-1">
                     <Sun className="size-4 text-white/80" />
                     <Switch
                       checked={isDark}
@@ -56,7 +58,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     <Moon className="size-4 text-white/80" />
                   </div>
                 </div>
-              </a>
+              </div>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

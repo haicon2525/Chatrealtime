@@ -5,16 +5,17 @@ import {
   updateConversationAfterCreateMessage,
 } from "../utils/messageHelper.js";
 import { io } from "../socket/index.js";
+import { uploadImageFromBuffer } from "../middlewares/uploadMiddleware.js";
 
 export const sendDirectMessage = async (req, res) => {
   try {
-    const { recipientId, content, conversationId } = req.body;
+    const { recipientId, content, imgUrl, conversationId } = req.body;
     const senderId = req.user._id;
 
     let conversation;
 
-    if (!content) {
-      return res.status(400).json({ message: "Thiếu nội dung" });
+    if (!content && !imgUrl) {
+      return res.status(400).json({ message: "Thiếu nội dung tin nhắn hoặc hình ảnh" });
     }
 
     if (conversationId) {
@@ -36,7 +37,8 @@ export const sendDirectMessage = async (req, res) => {
     const message = await Message.create({
       conversationId: conversation._id,
       senderId,
-      content,
+      content: content || "",
+      imgUrl: imgUrl || undefined,
     });
 
     updateConversationAfterCreateMessage(conversation, message, senderId);
@@ -54,18 +56,19 @@ export const sendDirectMessage = async (req, res) => {
 
 export const sendGroupMessage = async (req, res) => {
   try {
-    const { conversationId, content } = req.body;
+    const { conversationId, content, imgUrl } = req.body;
     const senderId = req.user._id;
     const conversation = req.conversation;
 
-    if (!content) {
-      return res.status(400).json("Thiếu nội dung");
+    if (!content && !imgUrl) {
+      return res.status(400).json({ message: "Thiếu nội dung tin nhắn hoặc hình ảnh" });
     }
 
     const message = await Message.create({
       conversationId,
       senderId,
-      content,
+      content: content || "",
+      imgUrl: imgUrl || undefined,
     });
 
     updateConversationAfterCreateMessage(conversation, message, senderId);
@@ -77,5 +80,23 @@ export const sendGroupMessage = async (req, res) => {
   } catch (error) {
     console.error("Lỗi xảy ra khi gửi tin nhắn nhóm", error);
     return res.status(500).json({ message: "Lỗi hệ thống" });
+  }
+};
+
+export const uploadMessageImage = async (req, res) => {
+  try {
+    const file = req.file;
+    if (!file) {
+      return res.status(400).json({ message: "Không tìm thấy file tải lên" });
+    }
+
+    const result = await uploadImageFromBuffer(file.buffer, {
+      folder: "moji_chat/messages",
+    });
+
+    return res.status(200).json({ imgUrl: result.secure_url });
+  } catch (error) {
+    console.error("Lỗi khi tải ảnh tin nhắn lên", error);
+    return res.status(500).json({ message: "Tải ảnh thất bại" });
   }
 };

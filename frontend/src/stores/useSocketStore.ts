@@ -3,6 +3,8 @@ import { io, type Socket } from "socket.io-client";
 import { useAuthStore } from "./useAuthStore";
 import type { SocketState } from "@/types/store";
 import { useChatStore } from "./useChatStore";
+import { useFriendStore } from "./useFriendStore";
+import { toast } from "sonner";
 
 const baseURL = import.meta.env.VITE_SOCKET_URL;
 
@@ -77,7 +79,27 @@ export const useSocketStore = create<SocketState>((set, get) => ({
       useChatStore.getState().addConvo(conversation);
       socket.emit("join-conversation", conversation._id);
     });
+
+    // delete conversation
+    socket.on("delete-conversation", ({ conversationId }) => {
+      useChatStore.getState().removeConvoFromStore(conversationId);
+    });
+
+    // new friend request
+    socket.on("new-friend-request", (request) => {
+      useFriendStore.getState().addReceivedRequest(request);
+      const senderName = request.from?.displayName || request.from?.username || "Ai đó";
+      toast.info(`${senderName} đã gửi cho bạn một lời mời kết bạn!`);
+    });
+
+    // friend request accepted
+    socket.on("friend-request-accepted", ({ acceptedBy }) => {
+      useFriendStore.getState().getFriends();
+      const name = acceptedBy?.displayName || acceptedBy?.username || "Ai đó";
+      toast.success(`${name} đã chấp nhận lời mời kết bạn của bạn!`);
+    });
   },
+
   disconnectSocket: () => {
     const socket = get().socket;
     if (socket) {

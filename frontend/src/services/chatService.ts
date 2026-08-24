@@ -64,4 +64,21 @@ export const chatService = {
     const res = await api.post("/conversations", { type, name, memberIds });
     return res.data.conversation;
   },
+
+  async deleteConversation(conversationId: string) {
+    const res = await api.delete(`/conversations/${conversationId}`);
+    return res.data;
+  },
+
+  async uploadImage(file: File): Promise<string> {
+    const formData = new FormData();
+    formData.append("image", file);
+    const res = await api.post("/messages/upload", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    return res.data.imgUrl;
+  },
 };
+
