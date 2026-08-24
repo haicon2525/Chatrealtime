@@ -54,3 +54,8 @@ export interface Message {
   createdAt: string;
   isOwn?: boolean;
 }
+
+export interface Reaction {
+  userId: string;
+  emoji: string;
+}

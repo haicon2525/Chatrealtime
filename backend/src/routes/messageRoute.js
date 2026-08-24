@@ -4,6 +4,7 @@ import {
   sendDirectMessage,
   sendGroupMessage,
   uploadMessageImage,
+  reactToMessage,
 } from "../controllers/messageController.js";
 import {
   checkFriendship,
@@ -16,5 +17,6 @@ const router = express.Router();
 router.post("/direct", checkFriendship, sendDirectMessage);
 router.post("/group", checkGroupMembership, sendGroupMessage);
 router.post("/upload", upload.single("image"), uploadMessageImage);
+router.post("/:messageId/react", reactToMessage);
 
 export default router;

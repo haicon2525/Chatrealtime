@@ -16,7 +16,7 @@ export const chatService = {
 
   async fetchMessages(id: string, cursor?: string): Promise<FetchMessageProps> {
     const res = await api.get(
-      `/conversations/${id}/messages?limit=${pageLimit}&cursor=${cursor}`
+      `/conversations/${id}/messages?limit=${pageLimit}&cursor=${cursor}`,
     );
 
     return { messages: res.data.messages, cursor: res.data.nextCursor };
@@ -26,7 +26,7 @@ export const chatService = {
     recipientId: string,
     content: string = "",
     imgUrl?: string,
-    conversationId?: string
+    conversationId?: string,
   ) {
     const res = await api.post("/messages/direct", {
       recipientId,
@@ -41,7 +41,7 @@ export const chatService = {
   async sendGroupMessage(
     conversationId: string,
     content: string = "",
-    imgUrl?: string
+    imgUrl?: string,
   ) {
     const res = await api.post("/messages/group", {
       conversationId,
@@ -59,7 +59,7 @@ export const chatService = {
   async createConversation(
     type: "direct" | "group",
     name: string,
-    memberIds: string[]
+    memberIds: string[],
   ) {
     const res = await api.post("/conversations", { type, name, memberIds });
     return res.data.conversation;
@@ -80,5 +80,8 @@ export const chatService = {
     });
     return res.data.imgUrl;
   },
+  async reactToMessage(messageId: string, emoji: string) {
+    const res = await api.post(`/messages/${messageId}/react`, { emoji });
+    return res.data.reactions;
+  },
 };
-

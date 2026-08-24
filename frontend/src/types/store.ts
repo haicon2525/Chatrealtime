@@ -71,6 +71,12 @@ export interface ChatState {
   ) => Promise<void>;
   deleteConversation: (conversationId: string) => Promise<void>;
   removeConvoFromStore: (conversationId: string) => void;
+  reactToMessage: (messageId: string, emoji: string) => Promise<void>;
+  updateMessageReactions: (
+    messageId: string,
+    conversationId: string,
+    reactions: any[]
+  ) => void;
 }
 
 

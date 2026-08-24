@@ -20,10 +20,23 @@ const messageSchema = new mongoose.Schema(
     imgUrl: {
       type: String,
     },
+    reactions: [
+      {
+        userId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+          required: true,
+        },
+        emoji: {
+          type: string,
+          required: true,
+        },
+      },
+    ],
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 messageSchema.index({ conversationId: 1, createdAt: -1 });

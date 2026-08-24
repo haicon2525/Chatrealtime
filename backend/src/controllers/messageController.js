@@ -15,7 +15,9 @@ export const sendDirectMessage = async (req, res) => {
     let conversation;
 
     if (!content && !imgUrl) {
-      return res.status(400).json({ message: "Thiếu nội dung tin nhắn hoặc hình ảnh" });
+      return res
+        .status(400)
+        .json({ message: "Thiếu nội dung tin nhắn hoặc hình ảnh" });
     }
 
     if (conversationId) {
@@ -61,7 +63,9 @@ export const sendGroupMessage = async (req, res) => {
     const conversation = req.conversation;
 
     if (!content && !imgUrl) {
-      return res.status(400).json({ message: "Thiếu nội dung tin nhắn hoặc hình ảnh" });
+      return res
+        .status(400)
+        .json({ message: "Thiếu nội dung tin nhắn hoặc hình ảnh" });
     }
 
     const message = await Message.create({
@@ -98,5 +102,50 @@ export const uploadMessageImage = async (req, res) => {
   } catch (error) {
     console.error("Lỗi khi tải ảnh tin nhắn lên", error);
     return res.status(500).json({ message: "Tải ảnh thất bại" });
+  }
+};
+
+export const reactToMessage = async (req, res) => {
+  try {
+    const { messageId } = req.params;
+    const { emoji } = req.body;
+    const userId = req.user._id;
+
+    if (!emoji) {
+      return res.status(400).json({ message: "Thiếu emoji cảm xúc" });
+    }
+
+    const message = await Message.findById(messageId);
+
+    if (!message) {
+      return res.status(404).json({ message: "Không tìm thấy tin nhắn" });
+    }
+
+    const existingIndex = message.reactions.findIndex(
+      (r) => r.userId.toString() === userId.toString()
+    );
+
+    if (existingIndex > -1) {
+      if (message.reactions[existingIndex].emoji === emoji) {
+        message.reactions.splice(existingIndex, 1);
+      } else {
+        message.reactions[existingIndex].emoji = emoji;
+      }
+    } else {
+      message.reactions.push({ userId, emoji });
+    }
+
+    await message.save();
+
+    io.to(message.conversationId.toString()).emit("message-reaction-updated", {
+      messageId: message._id,
+      conversationId: message.conversationId,
+      reactions: message.reactions,
+    });
+
+    return res.status(200).json({ reactions: message.reactions });
+  } catch (error) {
+    console.error("Lỗi khi thêm emoji", error);
+    return res.status(500).json({ message: "Thêm emoji thất bại" });
   }
 };

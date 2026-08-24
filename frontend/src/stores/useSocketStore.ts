@@ -107,6 +107,11 @@ export const useSocketStore = create<SocketState>((set, get) => ({
       const name = acceptedBy?.displayName || acceptedBy?.username || "Ai đó";
       toast.success(`${name} đã chấp nhận lời mời kết bạn của bạn!`);
     });
+
+    // message reaction update
+    socket.on("message-reaction-updated", ({ messageId, conversationId, reactions }) => {
+      useChatStore.getState().updateMessageReactions(messageId, conversationId, reactions);
+    });
   },
 
   disconnectSocket: () => {

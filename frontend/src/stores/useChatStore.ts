@@ -261,6 +261,37 @@ export const useChatStore = create<ChatState>()(
           };
         });
       },
+      updateMessageReactions: (messageId, conversationId, reactions) => {
+        set((state) => {
+          const convoMessages = state.messages[conversationId];
+          if (!convoMessages) return state;
+
+          const updatedItems = convoMessages.items.map((msg) =>
+            msg._id === messageId ? { ...msg, reactions } : msg
+          );
+
+          return {
+            messages: {
+              ...state.messages,
+              [conversationId]: {
+                ...convoMessages,
+                items: updatedItems,
+              },
+            },
+          };
+        });
+      },
+      reactToMessage: async (messageId, emoji) => {
+        try {
+          const reactions = await chatService.reactToMessage(messageId, emoji);
+          const activeConvoId = get().activeConversationId;
+          if (activeConvoId) {
+            get().updateMessageReactions(messageId, activeConvoId, reactions);
+          }
+        } catch (error) {
+          console.error("Lỗi khi thả cảm xúc", error);
+        }
+      },
     }),
 
     {
