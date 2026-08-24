@@ -7,7 +7,7 @@ Tài liệu này tổng hợp các tính năng đề xuất và lộ trình tri�
 ## 📌 Tổng quan các Hạng mục Tính năng
 
 ### 1. 💬 Trải nghiệm Trò chuyện & Tương tác (Core Messaging)
-- [ ] **Thả cảm xúc tin nhắn (Message Reactions):**
+- [x] **Thả cảm xúc tin nhắn (Message Reactions):**
   - Thả emoji (👍, ❤️, 😂, 😮, 😢, 🔥) trên từng tin nhắn.
   - Cập nhật thời gian thực danh sách & số lượng cảm xúc qua Socket.io.
 - [ ] **Trả lời tin nhắn (Reply / Quote Message):**
