@@ -97,12 +97,7 @@ const MessageItem = ({
             message.isOwn ? "items-end" : "items-start",
           )}
         >
-          {/* Thời gian hiển thị ngay phía trên khung tin nhắn */}
-          <span className="text-[10px] text-muted-foreground px-1 select-none">
-            {formattedTime}
-          </span>
-
-          <div className="relative group">
+          <div className="relative group flex items-center gap-1.5">
             {/* 1. Thanh chọn Emoji hiện lên khi RÊ CHUỘT (Hover) vào tin nhắn */}
             <div
               className={cn(
@@ -121,8 +116,19 @@ const MessageItem = ({
               ))}
             </div>
 
+            {/* Thời gian hiển thị khi RÊ CHUỘT vào tin nhắn */}
+            <span
+              className={cn(
+                "text-[10px] text-muted-foreground/70 opacity-0 group-hover:opacity-100 transition-opacity duration-200 select-none whitespace-nowrap px-0.5",
+                message.isOwn ? "order-first" : "order-last"
+              )}
+            >
+              {formattedTime}
+            </span>
+
             {/* Bong bóng tin nhắn */}
             <Card
+              title={formattedTime}
               className={cn(
                 "p-3 overflow-hidden",
                 message.isOwn
