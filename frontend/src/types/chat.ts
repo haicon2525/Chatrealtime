@@ -50,6 +50,7 @@ export interface Message {
   senderId: string;
   content: string | null;
   imgUrl?: string | null;
+  reactions?: Reaction[];
   updatedAt?: string | null;
   createdAt: string;
   isOwn?: boolean;

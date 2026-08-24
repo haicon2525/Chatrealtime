@@ -42,6 +42,24 @@ const MessageItem = ({
 
   const formattedTime = formatMessageTime(new Date(message.createdAt));
 
+  // Gom nhóm danh sách cảm xúc theo emoji và đếm số lượng
+  const groupedReactions = (message.reactions || []).reduce(
+    (
+      acc: Record<string, { count: number; reactedByMe: boolean }>,
+      r: Reaction
+    ) => {
+      if (!acc[r.emoji]) {
+        acc[r.emoji] = { count: 0, reactedByMe: false };
+      }
+      acc[r.emoji].count += 1;
+      if (r.userId?.toString() === user?._id?.toString()) {
+        acc[r.emoji].reactedByMe = true;
+      }
+      return acc;
+    },
+    {} as Record<string, { count: number; reactedByMe: boolean }>
+  );
+
   return (
     <div className="w-full flex flex-col py-1">
       {/* time header (hiển thị phía trên tin nhắn) */}
@@ -137,34 +155,23 @@ const MessageItem = ({
           {/* 2. Danh sách Emoji đã được thả phía dưới tin nhắn */}
           {message.reactions && message.reactions.length > 0 && (
             <div className="flex flex-wrap gap-1 mt-1">
-              {Object.entries(
-                message.reactions.reduce<
-                  Record<string, { count: number; reactedByMe: boolean }>
-                >((acc, r) => {
-                  if (!acc[r.emoji]) {
-                    acc[r.emoji] = { count: 0, reactedByMe: false };
-                  }
-                  acc[r.emoji].count += 1;
-                  if (r.userId?.toString() === user?._id?.toString()) {
-                    acc[r.emoji].reactedByMe = true;
-                  }
-                  return acc;
-                }, {}),
-              ).map(([emoji, { count, reactedByMe }]) => (
-                <button
-                  key={emoji}
-                  onClick={() => reactToMessage(message._id, emoji)}
-                  className={cn(
-                    "flex items-center gap-1 text-xs px-2 py-0.5 rounded-full border transition-all cursor-pointer",
-                    reactedByMe
-                      ? "bg-primary/20 border-primary text-primary font-medium shadow-sm"
-                      : "bg-background/80 border-border hover:bg-muted",
-                  )}
-                >
-                  <span>{emoji}</span>
-                  <span className="text-[10px]">{count}</span>
-                </button>
-              ))}
+              {Object.entries(groupedReactions).map(
+                ([emoji, { count, reactedByMe }]) => (
+                  <button
+                    key={emoji}
+                    onClick={() => reactToMessage(message._id, emoji)}
+                    className={cn(
+                      "flex items-center gap-1 text-xs px-2 py-0.5 rounded-full border transition-all cursor-pointer",
+                      reactedByMe
+                        ? "bg-primary/20 border-primary text-primary font-medium shadow-sm"
+                        : "bg-background/80 border-border hover:bg-muted"
+                    )}
+                  >
+                    <span>{emoji}</span>
+                    <span className="text-[10px]">{count}</span>
+                  </button>
+                )
+              )}
             </div>
           )}
 
