@@ -15,7 +15,7 @@ export interface AuthState {
     password: string,
     email: string,
     firstName: string,
-    lastName: string
+    lastName: string,
   ) => Promise<void>;
   signIn: (username: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
@@ -30,6 +30,8 @@ export interface ThemeState {
 }
 
 export interface ChatState {
+  revokeMessage: (messageId: string) => Promise<void>;
+
   conversations: Conversation[];
   messages: Record<
     string,
@@ -51,12 +53,14 @@ export interface ChatState {
   sendDirectMessage: (
     recipientId: string,
     content: string,
-    imgUrl?: string
+    imgUrl?: string,
+    replyTo?: string,
   ) => Promise<void>;
   sendGroupMessage: (
     conversationId: string,
     content: string,
-    imgUrl?: string
+    imgUrl?: string,
+    replyTo?: string,
   ) => Promise<void>;
   // add message
   addMessage: (message: Message) => Promise<void>;
@@ -67,7 +71,7 @@ export interface ChatState {
   createConversation: (
     type: "group" | "direct",
     name: string,
-    memberIds: string[]
+    memberIds: string[],
   ) => Promise<void>;
   deleteConversation: (conversationId: string) => Promise<void>;
   removeConvoFromStore: (conversationId: string) => void;
@@ -75,10 +79,13 @@ export interface ChatState {
   updateMessageReactions: (
     messageId: string,
     conversationId: string,
-    reactions: any[]
+    reactions: any[],
+  ) => void;
+  updateRevokedMessage: (
+    messageId: string,
+    conversationId: string,
   ) => void;
 }
-
 
 export interface SocketState {
   socket: Socket | null;

@@ -4,7 +4,8 @@ import { SidebarInset } from "../ui/sidebar";
 import ChatWindowHeader from "./ChatWindowHeader";
 import ChatWindowBody from "./ChatWindowBody";
 import MessageInput from "./MessageInput";
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
+import type { Message } from "@/types/chat";
 import ChatWindowSkeleton from "../skeleton/ChatWindowSkeleton";
 
 const ChatWindowLayout = () => {
@@ -15,8 +16,14 @@ const ChatWindowLayout = () => {
     markAsSeen,
   } = useChatStore();
 
+  const [replyingMessage, setReplyingMessage] = useState<Message | null>(null);
+
   const selectedConvo =
     conversations.find((c) => c._id === activeConversationId) ?? null;
+
+  useEffect(() => {
+    setReplyingMessage(null);
+  }, [activeConversationId]);
 
   useEffect(() => {
     if (!selectedConvo) {
@@ -48,12 +55,16 @@ const ChatWindowLayout = () => {
       <ChatWindowHeader chat={selectedConvo} />
 
       {/* Body */}
-      <div className="flex-1 overflow-y-auto bg-primary-foreground">
-        <ChatWindowBody />
+      <div className="flex-1 overflow-y-auto overflow-x-hidden bg-primary-foreground">
+        <ChatWindowBody onReply={(msg) => setReplyingMessage(msg)} />
       </div>
 
       {/* Footer */}
-      <MessageInput selectedConvo={selectedConvo} />
+      <MessageInput
+        selectedConvo={selectedConvo}
+        replyingMessage={replyingMessage}
+        onClearReply={() => setReplyingMessage(null)}
+      />
     </SidebarInset>
   );
 };

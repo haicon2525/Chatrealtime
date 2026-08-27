@@ -10,10 +10,11 @@ Tài liệu này tổng hợp các tính năng đề xuất và lộ trình tri�
 - [x] **Thả cảm xúc tin nhắn (Message Reactions):**
   - Thả emoji (👍, ❤️, 😂, 😮, 😢, 🔥) trên từng tin nhắn.
   - Cập nhật thời gian thực danh sách & số lượng cảm xúc qua Socket.io.
-- [ ] **Trả lời tin nhắn (Reply / Quote Message):**
+- [x] **Trả lời tin nhắn (Reply / Quote Message):**
   - Trích dẫn tin nhắn cũ để phản hồi theo luồng ngữ cảnh (Thread view).
-- [ ] **Chỉnh sửa & Thu hồi tin nhắn (Edit & Revoke Message):**
-  - **Thu hồi:** Xóa tin nhắn ở phía server & chuyển nội dung thành *"Tin nhắn đã được thu hồi"*.
+- [x] **Thu hồi tin nhắn (Revoke Message):**
+  - **Thu hồi:** Xóa tin nhắn ở phía server & chuyển nội dung thành *"Tin nhắn đã được thu hồi"*. Cập nhật thời gian thực qua Socket.io.
+- [ ] **Chỉnh sửa tin nhắn (Edit Message):**
   - **Chỉnh sửa:** Cập nhật nội dung tin nhắn và hiển thị nhãn *(Đã chỉnh sửa)*.
 - [ ] **Trạng thái đang gõ (Typing Indicator):**
   - Hiển thị hiệu ứng `User X đang gõ...` khi người dùng đang nhập văn bản.

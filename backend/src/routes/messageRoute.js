@@ -5,6 +5,7 @@ import {
   sendGroupMessage,
   uploadMessageImage,
   reactToMessage,
+  revokeMessage,
 } from "../controllers/messageController.js";
 import {
   checkFriendship,
@@ -18,5 +19,6 @@ router.post("/direct", checkFriendship, sendDirectMessage);
 router.post("/group", checkGroupMembership, sendGroupMessage);
 router.post("/upload", upload.single("image"), uploadMessageImage);
 router.post("/:messageId/react", reactToMessage);
+router.delete("/:messageId/revoke", revokeMessage);
 
 export default router;

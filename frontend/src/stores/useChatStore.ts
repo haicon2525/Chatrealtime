@@ -85,7 +85,7 @@ export const useChatStore = create<ChatState>()(
           set({ messageLoading: false });
         }
       },
-      sendDirectMessage: async (recipientId, content, imgUrl) => {
+      sendDirectMessage: async (recipientId, content, imgUrl, replyTo) => {
         try {
           const { activeConversationId } = get();
           await chatService.sendDirectMessage(
@@ -93,6 +93,7 @@ export const useChatStore = create<ChatState>()(
             content,
             imgUrl,
             activeConversationId || undefined,
+            replyTo,
           );
           set((state) => ({
             conversations: state.conversations.map((c) =>
@@ -103,9 +104,14 @@ export const useChatStore = create<ChatState>()(
           console.error("Lỗi xảy ra khi gửi direct message", error);
         }
       },
-      sendGroupMessage: async (conversationId, content, imgUrl) => {
+      sendGroupMessage: async (conversationId, content, imgUrl, replyTo) => {
         try {
-          await chatService.sendGroupMessage(conversationId, content, imgUrl);
+          await chatService.sendGroupMessage(
+            conversationId,
+            content,
+            imgUrl,
+            replyTo,
+          );
           set((state) => ({
             conversations: state.conversations.map((c) =>
               c._id === get().activeConversationId ? { ...c, seenBy: [] } : c,
@@ -246,7 +252,7 @@ export const useChatStore = create<ChatState>()(
       removeConvoFromStore: (conversationId) => {
         set((state) => {
           const updatedConvos = state.conversations.filter(
-            (c) => c._id !== conversationId
+            (c) => c._id !== conversationId,
           );
           const newMessages = { ...state.messages };
           delete newMessages[conversationId];
@@ -267,7 +273,7 @@ export const useChatStore = create<ChatState>()(
           if (!convoMessages) return state;
 
           const updatedItems = convoMessages.items.map((msg) =>
-            msg._id === messageId ? { ...msg, reactions } : msg
+            msg._id === messageId ? { ...msg, reactions } : msg,
           );
 
           return {
@@ -291,6 +297,43 @@ export const useChatStore = create<ChatState>()(
         } catch (error) {
           console.error("Lỗi khi thả cảm xúc", error);
         }
+      },
+      revokeMessage: async (messageId) => {
+        try {
+          await chatService.revokeMessage(messageId);
+        } catch (error) {
+          console.error("Lỗi khi thu hồi tin nhắn", error);
+        }
+      },
+
+      updateRevokedMessage: (messageId: string, conversationId: string) => {
+        set((state) => {
+          const convoMessages = state.messages[conversationId];
+          if (!convoMessages) return state;
+
+          const updatedItems = convoMessages.items.map((msg) =>
+            msg._id === messageId
+              ? {
+                  ...msg,
+                  revoked: true,
+                  isRevoked: true,
+                  content: "Tin nhắn đã bị thu hồi",
+                  imgUrl: null,
+                  reactions: [],
+                }
+              : msg,
+          );
+
+          return {
+            messages: {
+              ...state.messages,
+              [conversationId]: {
+                ...convoMessages,
+                items: updatedItems,
+              },
+            },
+          };
+        });
       },
     }),
 

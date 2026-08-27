@@ -1,15 +1,25 @@
 import { useAuthStore } from "@/stores/useAuthStore";
-import type { Conversation } from "@/types/chat";
+import type { Conversation, Message } from "@/types/chat";
 import { useRef, useState } from "react";
 import { Button } from "../ui/button";
-import { ImagePlus, Loader2, Send, X } from "lucide-react";
+import { ImagePlus, Loader2, Send, X, Reply } from "lucide-react";
 import { Input } from "../ui/input";
 import EmojiPicker from "./EmojiPicker";
 import { useChatStore } from "@/stores/useChatStore";
 import { chatService } from "@/services/chatService";
 import { toast } from "sonner";
 
-const MessageInput = ({ selectedConvo }: { selectedConvo: Conversation }) => {
+interface MessageInputProps {
+  selectedConvo: Conversation;
+  replyingMessage?: Message | null;
+  onClearReply?: () => void;
+}
+
+const MessageInput = ({
+  selectedConvo,
+  replyingMessage,
+  onClearReply,
+}: MessageInputProps) => {
   const { user } = useAuthStore();
   const { sendDirectMessage, sendGroupMessage } = useChatStore();
   const [value, setValue] = useState("");
@@ -54,9 +64,11 @@ const MessageInput = ({ selectedConvo }: { selectedConvo: Conversation }) => {
 
     const currValue = value;
     const currFile = selectedFile;
+    const replyToId = replyingMessage?._id;
 
     setValue("");
     removeSelectedImage();
+    if (onClearReply) onClearReply();
     setIsUploading(true);
 
     try {
@@ -69,9 +81,19 @@ const MessageInput = ({ selectedConvo }: { selectedConvo: Conversation }) => {
       if (selectedConvo.type === "direct") {
         const participants = selectedConvo.participants;
         const otherUser = participants.filter((p) => p._id !== user._id)[0];
-        await sendDirectMessage(otherUser._id, currValue, uploadedImgUrl);
+        await sendDirectMessage(
+          otherUser._id,
+          currValue,
+          uploadedImgUrl,
+          replyToId,
+        );
       } else {
-        await sendGroupMessage(selectedConvo._id, currValue, uploadedImgUrl);
+        await sendGroupMessage(
+          selectedConvo._id,
+          currValue,
+          uploadedImgUrl,
+          replyToId,
+        );
       }
     } catch (error) {
       console.error(error);
@@ -90,6 +112,31 @@ const MessageInput = ({ selectedConvo }: { selectedConvo: Conversation }) => {
 
   return (
     <div className="flex flex-col border-t bg-background">
+      {/* Box xem trước tin nhắn đang Reply */}
+      {replyingMessage && (
+        <div className="p-2.5 px-3 border-b bg-muted/40 flex items-center justify-between gap-2 text-xs">
+          <div className="flex items-center gap-2 min-w-0 border-l-2 border-primary pl-2">
+            <Reply className="size-3.5 text-primary shrink-0" />
+            <div className="min-w-0 flex-1">
+              <span className="font-semibold text-primary block truncate">
+                Đang trả lời tin nhắn
+              </span>
+              <span className="text-muted-foreground truncate block">
+                {replyingMessage.content ||
+                  (replyingMessage.imgUrl ? "[Hình ảnh]" : "")}
+              </span>
+            </div>
+          </div>
+          <button
+            onClick={onClearReply}
+            className="p-1 hover:bg-muted rounded-full transition-colors shrink-0 text-muted-foreground hover:text-foreground cursor-pointer"
+            title="Hủy trả lời"
+          >
+            <X className="size-4" />
+          </button>
+        </div>
+      )}
+
       {/* Box xem trước ảnh đã chọn */}
       {previewUrl && (
         <div className="p-2 border-b bg-muted/30 flex items-center gap-2">

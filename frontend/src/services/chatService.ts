@@ -1,5 +1,8 @@
 import api from "@/lib/axios";
-import type { ConversationResponse, Message } from "@/types/chat";
+import type {
+  ConversationResponse,
+  Message,
+} from "@/types/chat";
 
 interface FetchMessageProps {
   messages: Message[];
@@ -27,12 +30,14 @@ export const chatService = {
     content: string = "",
     imgUrl?: string,
     conversationId?: string,
+    replyTo?: string,
   ) {
     const res = await api.post("/messages/direct", {
       recipientId,
       content,
       imgUrl,
       conversationId,
+      replyTo,
     });
 
     return res.data.message;
@@ -42,11 +47,13 @@ export const chatService = {
     conversationId: string,
     content: string = "",
     imgUrl?: string,
+    replyTo?: string,
   ) {
     const res = await api.post("/messages/group", {
       conversationId,
       content,
       imgUrl,
+      replyTo,
     });
     return res.data.message;
   },
@@ -83,5 +90,9 @@ export const chatService = {
   async reactToMessage(messageId: string, emoji: string) {
     const res = await api.post(`/messages/${messageId}/react`, { emoji });
     return res.data.reactions;
+  },
+  async revokeMessage(messageId: string) {
+    const res = await api.delete(`/messages/${messageId}/revoke`);
+    return res.data.message;
   },
 };

@@ -4,7 +4,13 @@ import MessageItem from "./MessageItem";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
 
-const ChatWindowBody = () => {
+import type { Message } from "@/types/chat";
+
+interface ChatWindowBodyProps {
+  onReply?: (message: Message) => void;
+}
+
+const ChatWindowBody = ({ onReply }: ChatWindowBodyProps) => {
   const {
     activeConversationId,
     conversations,
@@ -116,7 +122,7 @@ const ChatWindowBody = () => {
           style={{
             display: "flex",
             flexDirection: "column-reverse",
-            overflow: "visible",
+            overflowX: "hidden",
           }}
         >
           {reversedMessages.map((message, index) => (
@@ -127,6 +133,7 @@ const ChatWindowBody = () => {
               messages={reversedMessages}
               selectedConvo={selectedConvo}
               lastMessageStatus={lastMessageStatus}
+              onReply={onReply ? onReply : () => {}}
             />
           ))}
         </InfiniteScroll>

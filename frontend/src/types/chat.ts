@@ -54,9 +54,24 @@ export interface Message {
   updatedAt?: string | null;
   createdAt: string;
   isOwn?: boolean;
+  revoked?: boolean;
+  isRevoked?: boolean;
+  replyTo?: ReplyToMessage | string | null;
+  replyToMessage?: ReplyToMessage | string | null;
 }
 
 export interface Reaction {
   userId: string;
   emoji: string;
+}
+
+export interface ReplyToMessage {
+  _id: string;
+  content: string;
+  imgUrl?: string | null;
+  senderId: {
+    _id: string;
+    displayName: string;
+    avatarUrl?: string | null;
+  };
 }
